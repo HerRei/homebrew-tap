@@ -4,10 +4,11 @@ class Localsr < Formula
   license "MIT"
 
   on_macos do
-    if Hardware::CPU.arm64?
+    on_arm do
       url "https://github.com/HerRei/local-upscale/releases/download/#{version}/LocalSR-macos-arm64.tar.gz"
       sha256 "TODO: Add checksum after first release"
-    else
+    end
+    on_intel do
       url "https://github.com/HerRei/local-upscale/releases/download/#{version}/LocalSR-macos-x86_64.tar.gz"
       sha256 "TODO: Add checksum after first release"
     end
