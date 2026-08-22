@@ -1,49 +1,42 @@
 class Localsr < Formula
-  desc "Local image super-resolution using PyTorch/Spandrel with Slint UI"
+  desc "Local image and video super-resolution using PyTorch and Spandrel"
   homepage "https://github.com/HerRei/local-upscale"
+  version "0.0.5-alpha"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/HerRei/local-upscale/releases/download/#{version}/LocalSR-macos-arm64.tar.gz"
-      sha256 "TODO: Add checksum after first release"
+      url "https://github.com/HerRei/local-upscale/releases/download/v#{version}/LocalSR-macOS-arm64-v0.0.5.tar.gz"
+      sha256 "2ae033062df99089ab4f025f59569865b51aff7f6913ef585c5bbacb5634dd35"
     end
     on_intel do
-      url "https://github.com/HerRei/local-upscale/releases/download/#{version}/LocalSR-macos-x86_64.tar.gz"
-      sha256 "TODO: Add checksum after first release"
+      url "https://github.com/HerRei/local-upscale/releases/download/v#{version}/LocalSR-macOS-arm64-v0.0.5.tar.gz"
+      sha256 "2ae033062df99089ab4f025f59569865b51aff7f6913ef585c5bbacb5634dd35"
     end
   end
 
   def install
-    prefix.install Dir["*"]
-
-    app_bundle = prefix.glob("*.app").first
-    raise "No .app bundle found" if app_bundle.nil?
+    prefix.install "LocalSR.app"
 
     (bin/"localsr").write <<~EOS
       #!/bin/bash
-      open -a "#{app_bundle}" --args "$@"
+      open -a "#{prefix}/LocalSR.app" --args "$@"
     EOS
-    chmod 0555, bin/"localsr"
+    chmod 0755, bin/"localsr"
   end
 
-  caveats do
-    <<~TEXT
-      LocalSR has been installed.
+  def caveats
+    <<~EOS
+      LocalSR.app has been installed.
 
-      To run the GUI application:
-        open -a LocalSR
-
-      Or use:
-        localsr image.png
-
-      For CLI mode:
-        open -a LocalSR --args --help
-    TEXT
+      To launch the GUI:
+        localsr
+      or:
+        open "#{prefix}/LocalSR.app"
+    EOS
   end
 
   test do
-    # Quick sanity check that the app bundle exists
-    assert_predicate prefix.glob("*.app").first, :exist?
+    assert_predicate prefix/"LocalSR.app", :exist?
   end
 end
