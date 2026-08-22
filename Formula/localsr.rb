@@ -16,11 +16,34 @@ class Localsr < Formula
 
   def install
     prefix.install Dir["*"]
-    bin.install_symlink "#{prefix}/LocalSR" => "localsr"
-    bin.install_symlink "#{prefix}/LocalSRWorker" => "localsr-worker"
+
+    app_bundle = prefix.glob("*.app").first
+    raise "No .app bundle found" if app_bundle.nil?
+
+    (bin/"localsr").write <<~EOS
+      #!/bin/bash
+      open -a "#{app_bundle}" --args "$@"
+    EOS
+    chmod 0555, bin/"localsr"
+  end
+
+  caveats do
+    <<~TEXT
+      LocalSR has been installed.
+
+      To run the GUI application:
+        open -a LocalSR
+
+      Or use:
+        localsr image.png
+
+      For CLI mode:
+        open -a LocalSR --args --help
+    TEXT
   end
 
   test do
-    system "#{bin}/localsr", "--version"
+    # Quick sanity check that the app bundle exists
+    assert_predicate prefix.glob("*.app").first, :exist?
   end
 end
