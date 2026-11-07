@@ -4,8 +4,12 @@
 # on a real Mac it would replace an installed LocalSR.
 set -euo pipefail
 
-if [[ "${CI:-}" != "true" ]]; then
-  echo "test_cask.sh installs into /Applications; run it on CI only." >&2
+if [[ "${GITHUB_ACTIONS:-}" != "true" || "${RUNNER_ENVIRONMENT:-}" != "github-hosted" ]]; then
+  echo "test_cask.sh installs into /Applications; run it on a GitHub-hosted runner only." >&2
+  exit 2
+fi
+if [[ -e /Applications/LocalSR.app ]] || brew list --cask localsr >/dev/null 2>&1; then
+  echo "LocalSR is already installed here; this test only runs on a clean machine." >&2
   exit 2
 fi
 
@@ -32,11 +36,17 @@ fi
 
 codesign --verify --deep --strict "$app"
 xcrun stapler validate "$app"
-if spctl --status | grep -q "assessments enabled"; then
+gatekeeper="$(spctl --status)"
+if [[ "$gatekeeper" == *"assessments enabled"* ]]; then
   assessment="$(spctl --assess --type execute -vv "$app" 2>&1)"
   echo "$assessment"
   grep -q "source=Notarized Developer ID" <<<"$assessment"
 fi
+
+# Starts the installed host, which hands a protocol handshake to the bundled engine.
+smoke="$("$app/Contents/MacOS/localsr-next" --headless-smoke-test)"
+echo "$smoke"
+python3 -c 'import json, sys; sys.exit(0 if json.loads(sys.argv[1]).get("passed") is True else 1)' "$smoke"
 
 brew uninstall --cask herrei/tap/localsr
 test ! -e "$app"

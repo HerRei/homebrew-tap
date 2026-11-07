@@ -36,7 +36,8 @@ class BumpError(Exception):
 
 
 def fetch(url: str, *, api: bool = False) -> bytes:
-    headers = {"User-Agent": "HerRei-homebrew-tap-bump"}
+    # Pages caches the feed for ten minutes; the release tool starts this right after a release.
+    headers = {"User-Agent": "HerRei-homebrew-tap-bump", "Cache-Control": "no-cache"}
     if api:
         headers["Accept"] = "application/vnd.github+json"
         token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")

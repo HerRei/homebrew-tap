@@ -23,7 +23,6 @@ cask "localsr" do
   app "LocalSR.app"
 
   zap trash: [
-    "~/.local/bin/localsr-next",
     "~/Library/Application Support/LocalSR",
     "~/Library/Caches/com.localsr.desktop.next",
     "~/Library/Caches/LocalSR",

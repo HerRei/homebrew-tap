@@ -20,13 +20,16 @@ by the full name as above trusts this one. The short name
 ## Updates
 
 LocalSR updates itself: at launch it checks the same feed that this cask follows
-and offers the new version. Homebrew knows that (`auto_updates true`), so after an
-in-app update `brew upgrade` leaves LocalSR alone. If the app is older than the
-cask, for example because you declined the update, a plain `brew upgrade`
-installs the cask's version.
+and offers the new version. Homebrew knows that (`auto_updates true`) and compares
+the version inside the installed app with the cask's. A plain `brew upgrade`
+installs the cask's version only when the app's number is lower, for example
+0.3.0 against 0.4.0-beta, so it never undoes an in-app update. The app carries
+only the number, without "-beta", so a step such as 0.3.0-beta to 0.3.0-beta.1
+comes through the in-app update alone.
 
-`brew upgrade --greedy` always reinstalls the cask's version, even over an app
-that is already as new. That costs one download and changes nothing else.
+`brew upgrade --greedy` skips that comparison: whenever the cask differs from the
+version Homebrew installed, it installs the cask's version, even over an app that
+has already updated itself.
 
 ## Uninstall
 
@@ -35,15 +38,18 @@ brew uninstall --cask localsr
 ```
 
 This removes the app and keeps your settings, models and queue. To remove those
-too, including the optional Finder action and the `localsr-next` command:
+too, including the optional Finder action:
 
 ```bash
 brew uninstall --cask --zap localsr
 ```
 
 `--zap` moves `~/Library/Application Support/LocalSR` to the Trash, together with
-any models you added there. Pictures and videos you enhanced stay where LocalSR
-saved them.
+any models you added there. Enhanced pictures and videos go to the Desktop unless
+you chose another folder, and stay there; only a folder you picked inside
+`~/Library/Application Support/LocalSR` would go to the Trash with it. If you
+installed the optional `localsr-next` command, delete the link
+`~/.local/bin/localsr-next` yourself.
 
 ## How the cask stays current
 
@@ -52,8 +58,9 @@ saved them.
 feed names a new version, the workflow takes the DMG checksum from the GitHub
 release, refuses it unless the release's `.sha256` file says the same, installs
 the cask on a clean macOS runner, checks the code signature and notarization,
-and commits. The LocalSR release script also starts this workflow right after
-each release, so the cask usually follows within minutes.
+starts the installed app's headless self-test, and commits. The LocalSR release
+script also starts this workflow right after each release, so the cask usually
+follows within minutes.
 
 `check.yml` runs the same install test on every push and pull request.
 `audit_exceptions/github_prerelease_allowlist.json` lets `brew audit` accept
