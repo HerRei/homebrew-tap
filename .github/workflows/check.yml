@@ -17,4 +17,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Lint, install and uninstall the cask
+        env:
+          # brew audit --online calls the GitHub API; anonymous calls share the runner's IP limit.
+          HOMEBREW_GITHUB_API_TOKEN: ${{ github.token }}
         run: .github/scripts/test_cask.sh

@@ -26,6 +26,9 @@ jobs:
         run: python3 -I .github/scripts/bump_cask.py
       - name: Install the new version on this runner
         if: steps.bump.outputs.changed == 'true'
+        env:
+          # brew audit --online calls the GitHub API; anonymous calls share the runner's IP limit.
+          HOMEBREW_GITHUB_API_TOKEN: ${{ github.token }}
         run: .github/scripts/test_cask.sh
       - name: Commit and push
         if: steps.bump.outputs.changed == 'true'
