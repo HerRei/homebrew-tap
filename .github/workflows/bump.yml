@@ -1,0 +1,38 @@
+name: Bump cask
+
+# Follows the update feed the app itself reads. A new LocalSR release reaches
+# the cask within six hours, or right away when this workflow is started by hand.
+on:
+  schedule:
+    - cron: "23 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bump-cask
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Read the update feed
+        id: bump
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 -I .github/scripts/bump_cask.py
+      - name: Install the new version on this runner
+        if: steps.bump.outputs.changed == 'true'
+        run: .github/scripts/test_cask.sh
+      - name: Commit and push
+        if: steps.bump.outputs.changed == 'true'
+        env:
+          VERSION: ${{ steps.bump.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "localsr $VERSION"
+          git push origin HEAD:main
