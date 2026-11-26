@@ -1,6 +1,6 @@
 cask "localsr" do
-  version "0.6.1-beta"
-  sha256 "41206523ab2fead65b5baeb556125bc9dff876299d9896c4daccae30d5bc0292"
+  version "0.6.2-beta"
+  sha256 "cbb3b5e6161d30c3c98f4da9df311b5f7236408c1ad978094762e49863817c91"
 
   url "https://github.com/HerRei/local-upscale/releases/download/v#{version}/LocalSR-v#{version}-macOS-arm64.dmg"
   name "LocalSR"
